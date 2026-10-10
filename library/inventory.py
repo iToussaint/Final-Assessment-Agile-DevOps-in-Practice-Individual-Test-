@@ -8,6 +8,8 @@ from library.borrower import Borrower
 from library.exceptions import DuplicateError, NotFoundError
 from library.utils import generate_id, normalise_isbn
 
+SEARCH_FIELDS = ("all", "title", "author")
+
 
 class Library:
     """Holds every book, author and borrower, keyed by id for O(1) lookup."""
@@ -77,6 +79,27 @@ class Library:
             return self.books[book_id]
         except KeyError:
             raise NotFoundError(f"No book with id {book_id!r}") from None
+
+    def search_books(self, term: str, field: str = "all") -> list[Book]:
+        """Case-insensitive partial-match search on ``title``, ``author`` or ``all``."""
+        if field not in SEARCH_FIELDS:
+            raise ValueError(f"field must be one of {', '.join(SEARCH_FIELDS)}")
+        needle = term.strip().casefold()
+        if not needle:
+            return []
+
+        def matches_title(book: Book) -> bool:
+            return needle in book.title.casefold()
+
+        def matches_author(book: Book) -> bool:
+            return any(needle in name.casefold() for name in book.author_names)
+
+        checks = {
+            "title": [matches_title],
+            "author": [matches_author],
+            "all": [matches_title, matches_author],
+        }[field]
+        return [book for book in self.list_books() if any(check(book) for check in checks)]
 
     def list_books(self) -> list[Book]:
         """All books sorted by title."""
