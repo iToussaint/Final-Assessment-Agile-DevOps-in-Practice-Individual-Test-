@@ -1,0 +1,23 @@
+$ python main.py add-book --title "Things Fall Apart" --author "Chinua Achebe" --isbn 9780385474542 --genre Novel --year 1958
+Added [B001] Things Fall Apart by Chinua Achebe (1958, Novel) ISBN 9780385474542 - available
+
+$ python main.py add-book --title "Good Omens" --author "Terry Pratchett" --author "Neil Gaiman" --isbn 9780060853983 --genre Fantasy --year 1990
+Added [B002] Good Omens by Terry Pratchett, Neil Gaiman (1990, Fantasy) ISBN 9780060853983 - available
+
+$ python main.py add-book --title "Things Fall Apart" --author "Chinua Achebe" --isbn 978-0-385-47454-2 --genre Novel --year 1958
+Error: A book with ISBN 9780385474542 is already catalogued
+(exit code 1)
+
+$ python main.py add-book --title "Future Book" --author "X" --isbn 9780000000002 --genre Novel --year 2099
+Error: Year must be between 1450 and 2026, got 2099
+(exit code 1)
+
+$ python main.py list
+[B002] Good Omens by Terry Pratchett, Neil Gaiman (1990, Fantasy) ISBN 9780060853983 - available
+[B001] Things Fall Apart by Chinua Achebe (1958, Novel) ISBN 9780385474542 - available
+
+$ python main.py search gaiman --field author
+[B002] Good Omens by Terry Pratchett, Neil Gaiman (1990, Fantasy) ISBN 9780060853983 - available
+
+$ python main.py search tolkien
+No books found.
