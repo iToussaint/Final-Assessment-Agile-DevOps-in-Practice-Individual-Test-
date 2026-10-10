@@ -19,6 +19,42 @@ pip install -r requirements-dev.txt
 pytest
 ```
 
+## Usage
+
+Data is stored in `data/library.json` (override with `--data PATH` or the
+`LIBRARY_DATA_FILE` environment variable).
+
+```bash
+# catalogue a book (repeat --author for co-authors)
+python main.py add-book --title "Things Fall Apart" --author "Chinua Achebe" \
+    --isbn 9780385474542 --genre Novel --year 1958
+
+# search by title and/or author (case-insensitive, partial match)
+python main.py search achebe
+python main.py search "yellow sun" --field title
+
+# list every book
+python main.py list
+```
+
+## Project structure
+
+```
+main.py                 # CLI entry point (argparse)
+library/
+├── resource.py         # LibraryResource abstract base class
+├── author.py           # Author
+├── book.py             # Book
+├── borrower.py         # Borrower
+├── inventory.py        # Library: add_book(), search_books(), ...
+├── storage.py          # JSON load/save (atomic writes)
+├── exceptions.py       # domain errors
+└── utils.py            # id generation, validation helpers
+data/library.json       # persisted inventory
+tests/                  # pytest unit + integration tests
+docs/                   # backlog, sprint plans, reviews, retrospectives
+```
+
 ## Project documentation
 
 | Phase | Documents |

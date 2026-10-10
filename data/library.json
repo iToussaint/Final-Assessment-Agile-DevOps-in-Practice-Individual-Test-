@@ -1,0 +1,122 @@
+{
+  "version": 1,
+  "authors": [
+    {
+      "id": "A001",
+      "name": "Chinua Achebe"
+    },
+    {
+      "id": "A002",
+      "name": "Chimamanda Ngozi Adichie"
+    },
+    {
+      "id": "A003",
+      "name": "Terry Pratchett"
+    },
+    {
+      "id": "A004",
+      "name": "Neil Gaiman"
+    },
+    {
+      "id": "A005",
+      "name": "Robert C. Martin"
+    },
+    {
+      "id": "A006",
+      "name": "Andrew Hunt"
+    },
+    {
+      "id": "A007",
+      "name": "David Thomas"
+    }
+  ],
+  "books": [
+    {
+      "id": "B001",
+      "type": "book",
+      "title": "Things Fall Apart",
+      "author_ids": [
+        "A001"
+      ],
+      "isbn": "9780385474542",
+      "genre": "Novel",
+      "year": 1958,
+      "available": true
+    },
+    {
+      "id": "B002",
+      "type": "book",
+      "title": "Arrow of God",
+      "author_ids": [
+        "A001"
+      ],
+      "isbn": "9780385014809",
+      "genre": "Novel",
+      "year": 1964,
+      "available": true
+    },
+    {
+      "id": "B003",
+      "type": "book",
+      "title": "Half of a Yellow Sun",
+      "author_ids": [
+        "A002"
+      ],
+      "isbn": "9781400095209",
+      "genre": "Historical Fiction",
+      "year": 2006,
+      "available": true
+    },
+    {
+      "id": "B004",
+      "type": "book",
+      "title": "Purple Hibiscus",
+      "author_ids": [
+        "A002"
+      ],
+      "isbn": "9781616202415",
+      "genre": "Novel",
+      "year": 2003,
+      "available": true
+    },
+    {
+      "id": "B005",
+      "type": "book",
+      "title": "Good Omens",
+      "author_ids": [
+        "A003",
+        "A004"
+      ],
+      "isbn": "9780060853983",
+      "genre": "Fantasy",
+      "year": 1990,
+      "available": true
+    },
+    {
+      "id": "B006",
+      "type": "book",
+      "title": "Clean Code",
+      "author_ids": [
+        "A005"
+      ],
+      "isbn": "9780132350884",
+      "genre": "Software",
+      "year": 2008,
+      "available": true
+    },
+    {
+      "id": "B007",
+      "type": "book",
+      "title": "The Pragmatic Programmer",
+      "author_ids": [
+        "A006",
+        "A007"
+      ],
+      "isbn": "9780201616224",
+      "genre": "Software",
+      "year": 1999,
+      "available": true
+    }
+  ],
+  "borrowers": []
+}
