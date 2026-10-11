@@ -6,6 +6,8 @@ Examples::
         --isbn 9780385474542 --genre Novel --year 1958
     python main.py search achebe --field author
     python main.py list
+    python main.py add-borrower --name "Ama Mensah" --email ama@example.com
+    python main.py borrow B001 M001
     python main.py health
     python main.py serve-health --port 8080
 """
@@ -54,6 +56,29 @@ def cmd_search(library: Library, args: argparse.Namespace) -> bool:
 def cmd_list(library: Library, args: argparse.Namespace) -> bool:
     print_books(library.list_books(), empty_message="The library is empty.")
     return False
+
+
+def cmd_add_borrower(library: Library, args: argparse.Namespace) -> bool:
+    borrower = library.add_borrower(args.name, args.email)
+    print(f"Registered {borrower.describe()}")
+    return True
+
+
+def cmd_borrowers(library: Library, args: argparse.Namespace) -> bool:
+    borrowers = library.list_borrowers()
+    if not borrowers:
+        print("No borrowers registered.")
+    for borrower in borrowers:
+        print(borrower.describe())
+    return False
+
+
+def cmd_borrow(library: Library, args: argparse.Namespace) -> bool:
+    record = library.borrow_book(args.book_id, args.borrower_id)
+    book = library.get_book(record.book_id)
+    borrower = library.get_borrower(record.borrower_id)
+    print(f"{book.title!r} ({book.id}) lent to {borrower.name} ({borrower.id})")
+    return True
 
 
 # --- monitoring commands: run without loading the library, return an exit code -------------
@@ -121,6 +146,19 @@ def build_parser() -> argparse.ArgumentParser:
 
     listing = sub.add_parser("list", help="list every book")
     listing.set_defaults(handler=cmd_list)
+
+    add_borrower = sub.add_parser("add-borrower", help="register a borrower")
+    add_borrower.add_argument("--name", required=True)
+    add_borrower.add_argument("--email", required=True)
+    add_borrower.set_defaults(handler=cmd_add_borrower)
+
+    borrowers = sub.add_parser("borrowers", help="list registered borrowers")
+    borrowers.set_defaults(handler=cmd_borrowers)
+
+    borrow = sub.add_parser("borrow", help="lend a book to a borrower")
+    borrow.add_argument("book_id")
+    borrow.add_argument("borrower_id")
+    borrow.set_defaults(handler=cmd_borrow)
 
     health = sub.add_parser("health", help="check the data store and print a JSON status")
     health.set_defaults(monitor=cmd_health)
