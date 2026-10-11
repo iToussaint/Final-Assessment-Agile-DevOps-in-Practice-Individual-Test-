@@ -60,3 +60,4 @@ docs/                   # backlog, sprint plans, reviews, retrospectives
 | Phase | Documents |
 |---|---|
 | Sprint 0 – Planning | [Product vision & backlog](docs/sprint-0/product-backlog.md) · [Acceptance criteria](docs/sprint-0/acceptance-criteria.md) · [Definition of Done](docs/sprint-0/definition-of-done.md) · [Sprint 1 plan](docs/sprint-0/sprint-1-plan.md) |
+| Sprint 1 | [Sprint review](docs/sprint-1/sprint-review.md) · [Retrospective](docs/sprint-1/retrospective.md) · [Test results](docs/sprint-1/evidence/test-results.txt) · [CLI demo](docs/sprint-1/evidence/cli-demo.txt) |
