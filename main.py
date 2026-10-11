@@ -8,6 +8,8 @@ Examples::
     python main.py list
     python main.py add-borrower --name "Ama Mensah" --email ama@example.com
     python main.py borrow B001 M001
+    python main.py return B001
+    python main.py history --borrower M001
     python main.py health
     python main.py serve-health --port 8080
 """
@@ -79,6 +81,30 @@ def cmd_borrow(library: Library, args: argparse.Namespace) -> bool:
     borrower = library.get_borrower(record.borrower_id)
     print(f"{book.title!r} ({book.id}) lent to {borrower.name} ({borrower.id})")
     return True
+
+
+def cmd_return(library: Library, args: argparse.Namespace) -> bool:
+    record = library.return_book(args.book_id)
+    book = library.get_book(record.book_id)
+    borrower = library.get_borrower(record.borrower_id)
+    print(f"{book.title!r} ({book.id}) returned by {borrower.name} ({borrower.id})")
+    return True
+
+
+def cmd_history(library: Library, args: argparse.Namespace) -> bool:
+    records = library.get_history(args.borrower)
+    if not records:
+        print("No borrowing history.")
+    for record in records:
+        book = library.books.get(record.book_id)
+        borrower = library.borrowers.get(record.borrower_id)
+        returned = record.returned_at or "on loan"
+        print(
+            f"{record.borrowed_at} -> {returned:<25} "
+            f"{record.book_id} {book.title if book else '?'!r} | "
+            f"{record.borrower_id} {borrower.name if borrower else '?'}"
+        )
+    return False
 
 
 # --- monitoring commands: run without loading the library, return an exit code -------------
@@ -159,6 +185,14 @@ def build_parser() -> argparse.ArgumentParser:
     borrow.add_argument("book_id")
     borrow.add_argument("borrower_id")
     borrow.set_defaults(handler=cmd_borrow)
+
+    give_back = sub.add_parser("return", help="record the return of a borrowed book")
+    give_back.add_argument("book_id")
+    give_back.set_defaults(handler=cmd_return)
+
+    history = sub.add_parser("history", help="show the borrowing history")
+    history.add_argument("--borrower", metavar="BORROWER_ID", default=None)
+    history.set_defaults(handler=cmd_history)
 
     health = sub.add_parser("health", help="check the data store and print a JSON status")
     health.set_defaults(monitor=cmd_health)
