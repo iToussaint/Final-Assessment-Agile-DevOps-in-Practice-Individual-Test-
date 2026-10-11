@@ -74,8 +74,8 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     env:
-      LIBRARY_DATA_FILE: ${{ runner.temp }}/smoke/library.json
-      LIBRARY_LOG_FILE: ${{ runner.temp }}/smoke/library.log
+      LIBRARY_DATA_FILE: /tmp/smoke/library.json
+      LIBRARY_LOG_FILE: /tmp/smoke/library.log
     steps:
       - name: Check out code
         uses: actions/checkout@v5
