@@ -5,10 +5,12 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from library.exceptions import LoanError
 from library.resource import LibraryResource
 from library.utils import require_text
 
 EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+MAX_LOANS = 3
 
 
 class Borrower(LibraryResource):
@@ -49,6 +51,22 @@ class Borrower(LibraryResource):
     def borrowed_book_ids(self) -> tuple[str, ...]:
         """Ids of the books currently on loan (read-only view)."""
         return tuple(self.__borrowed_book_ids)
+
+    @property
+    def can_borrow(self) -> bool:
+        return len(self.__borrowed_book_ids) < MAX_LOANS
+
+    def add_loan(self, book_id: str) -> None:
+        if not self.can_borrow:
+            raise LoanError(f"{self.name} already has the maximum of {MAX_LOANS} books on loan")
+        if book_id in self.__borrowed_book_ids:
+            raise LoanError(f"{self.name} already has book {book_id}")
+        self.__borrowed_book_ids.append(book_id)
+
+    def remove_loan(self, book_id: str) -> None:
+        if book_id not in self.__borrowed_book_ids:
+            raise LoanError(f"{self.name} does not have book {book_id} on loan")
+        self.__borrowed_book_ids.remove(book_id)
 
     def describe(self) -> str:
         return f"[{self.id}] {self.name} <{self.email}> - {len(self.__borrowed_book_ids)} on loan"

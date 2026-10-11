@@ -7,8 +7,9 @@ import logging
 from library.author import Author
 from library.book import Book
 from library.borrower import Borrower
-from library.exceptions import DuplicateError, NotFoundError
-from library.utils import generate_id, normalise_isbn
+from library.exceptions import DuplicateError, LoanError, NotFoundError
+from library.loan import LoanRecord
+from library.utils import generate_id, normalise_isbn, now_iso
 
 SEARCH_FIELDS = ("all", "title", "author")
 
@@ -22,6 +23,7 @@ class Library:
         self.books: dict[str, Book] = {}
         self.authors: dict[str, Author] = {}
         self.borrowers: dict[str, Borrower] = {}
+        self.history: list[LoanRecord] = []
 
     # --- authors ---------------------------------------------------------------------
 
@@ -112,3 +114,56 @@ class Library:
     def list_books(self) -> list[Book]:
         """All books sorted by title."""
         return sorted(self.books.values(), key=lambda book: book.title.casefold())
+
+    # --- borrowers ---------------------------------------------------------------------
+
+    def add_borrower(self, name: str, email: str) -> Borrower:
+        """Register a new borrower; e-mail addresses must be unique."""
+        borrower = Borrower(generate_id("M", self.borrowers), name, email)
+        if borrower in self.borrowers.values():
+            raise DuplicateError(f"A borrower with e-mail {borrower.email} is already registered")
+        self.borrowers[borrower.id] = borrower
+        logger.info("Registered borrower %s (%s)", borrower.id, borrower.email)
+        return borrower
+
+    def get_borrower(self, borrower_id: str) -> Borrower:
+        try:
+            return self.borrowers[borrower_id]
+        except KeyError:
+            raise NotFoundError(f"No borrower with id {borrower_id!r}") from None
+
+    def list_borrowers(self) -> list[Borrower]:
+        return sorted(self.borrowers.values(), key=lambda borrower: borrower.name.casefold())
+
+    # --- lending -----------------------------------------------------------------------
+
+    def borrow_book(self, book_id: str, borrower_id: str) -> LoanRecord:
+        """Lend an available book to a borrower and record it in the history."""
+        book = self.get_book(book_id)
+        borrower = self.get_borrower(borrower_id)
+        # check every rule before changing any state, so a refusal leaves nothing half-done
+        if not book.is_available:
+            holder = self.borrower_of(book.id)
+            who = f" by {holder.name}" if holder else ""
+            raise LoanError(f"{book.title!r} ({book.id}) is already on loan{who}")
+        if not borrower.can_borrow:
+            raise LoanError(f"{borrower.name} has reached the loan limit")
+
+        book.mark_borrowed()
+        borrower.add_loan(book.id)
+        record = LoanRecord(book_id=book.id, borrower_id=borrower.id, borrowed_at=now_iso())
+        self.history.append(record)
+        logger.info("Book %s lent to borrower %s", book.id, borrower.id)
+        return record
+
+    def active_loans(self) -> list[LoanRecord]:
+        return [record for record in self.history if record.is_active]
+
+    def borrower_of(self, book_id: str) -> Borrower | None:
+        """The borrower currently holding ``book_id``, if it is on loan."""
+        holders = [
+            self.borrowers.get(record.borrower_id)
+            for record in self.active_loans()
+            if record.book_id == book_id
+        ]
+        return holders[0] if holders else None

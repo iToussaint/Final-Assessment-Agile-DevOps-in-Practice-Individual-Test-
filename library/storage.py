@@ -13,6 +13,7 @@ from library.book import Book
 from library.borrower import Borrower
 from library.exceptions import StorageError
 from library.inventory import Library
+from library.loan import LoanRecord
 
 SCHEMA_VERSION = 1
 DEFAULT_DATA_FILE = Path(__file__).resolve().parent.parent / "data" / "library.json"
@@ -31,6 +32,7 @@ def library_to_dict(library: Library) -> dict[str, Any]:
         "authors": [author.to_dict() for author in library.authors.values()],
         "books": [book.to_dict() for book in library.books.values()],
         "borrowers": [borrower.to_dict() for borrower in library.borrowers.values()],
+        "history": [record.to_dict() for record in library.history],
     }
 
 
@@ -41,6 +43,7 @@ def library_from_dict(data: dict[str, Any]) -> Library:
         item["id"]: Book.from_dict(item, library.authors) for item in data.get("books", [])
     }
     library.borrowers = {item["id"]: Borrower.from_dict(item) for item in data.get("borrowers", [])}
+    library.history = [LoanRecord.from_dict(item) for item in data.get("history", [])]
     return library
 
 
