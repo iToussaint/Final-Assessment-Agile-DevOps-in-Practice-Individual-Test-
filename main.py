@@ -10,6 +10,7 @@ Examples::
     python main.py borrow B001 M001
     python main.py return B001
     python main.py history --borrower M001
+    python main.py report by-author
     python main.py health
     python main.py serve-health --port 8080
 """
@@ -28,6 +29,7 @@ from library.exceptions import LibraryError
 from library.health import OK, check_health, create_health_server
 from library.inventory import SEARCH_FIELDS, Library
 from library.logging_config import configure_logging, default_log_file, verbosity_to_level
+from library.reports import REPORTS, render_report
 from library.storage import default_data_file, load_library, save_library
 
 logger = logging.getLogger("library.cli")
@@ -104,6 +106,12 @@ def cmd_history(library: Library, args: argparse.Namespace) -> bool:
             f"{record.book_id} {book.title if book else '?'!r} | "
             f"{record.borrower_id} {borrower.name if borrower else '?'}"
         )
+    return False
+
+
+def cmd_report(library: Library, args: argparse.Namespace) -> bool:
+    for line in render_report(args.name, library):
+        print(line)
     return False
 
 
@@ -193,6 +201,10 @@ def build_parser() -> argparse.ArgumentParser:
     history = sub.add_parser("history", help="show the borrowing history")
     history.add_argument("--borrower", metavar="BORROWER_ID", default=None)
     history.set_defaults(handler=cmd_history)
+
+    report = sub.add_parser("report", help="print an inventory report")
+    report.add_argument("name", choices=REPORTS)
+    report.set_defaults(handler=cmd_report)
 
     health = sub.add_parser("health", help="check the data store and print a JSON status")
     health.set_defaults(monitor=cmd_health)
