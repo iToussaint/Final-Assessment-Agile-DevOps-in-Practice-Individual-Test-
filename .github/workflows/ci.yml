@@ -68,3 +68,41 @@ jobs:
           path: |
             test-reports/junit.xml
             coverage.xml
+
+  smoke:
+    name: CLI smoke test & health endpoint
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      LIBRARY_DATA_FILE: ${{ runner.temp }}/smoke/library.json
+      LIBRARY_LOG_FILE: ${{ runner.temp }}/smoke/library.log
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Exercise the CLI end-to-end
+        run: |
+          set -euxo pipefail
+          python main.py --version
+          python main.py add-book --title "Things Fall Apart" --author "Chinua Achebe" \
+            --isbn 9780385474542 --genre Novel --year 1958
+          python main.py list | grep "Things Fall Apart"
+          python main.py search achebe --field author | grep "B001"
+          python main.py health
+
+      - name: Probe the HTTP health endpoint
+        run: |
+          set -euxo pipefail
+          python main.py serve-health --port 8080 &
+          for i in $(seq 1 20); do curl -fsS http://127.0.0.1:8080/health && break; sleep 0.5; done
+          curl -fsS http://127.0.0.1:8080/health | python -c "import json,sys; assert json.load(sys.stdin)['status'] == 'ok'"
+          kill %1
+
+      - name: Show application log
+        if: always()
+        run: cat "$LIBRARY_LOG_FILE"
