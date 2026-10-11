@@ -37,6 +37,24 @@ python main.py search "yellow sun" --field title
 python main.py list
 ```
 
+## Monitoring & logging
+
+```bash
+# health check: prints a JSON status, exit code 0 (ok) or 1 (error)
+python main.py health
+
+# the same check over HTTP: GET http://127.0.0.1:8080/health -> 200 ok / 503 error
+python main.py serve-health --port 8080
+
+# show logs on the console as well (-v = INFO, -vv = DEBUG)
+python main.py -v add-book ...
+```
+
+- Every state change (book added, library saved, …) is logged to `logs/library.log`
+  (rotating, 1 MB × 3 backups; override with `--log-file` or `LIBRARY_LOG_FILE`).
+- Expected errors (e.g. duplicate ISBN) are logged as `WARNING`; unexpected exceptions are
+  logged with the full traceback while the user only sees a short message (exit code 2).
+
 ## Project structure
 
 ```
@@ -48,6 +66,8 @@ library/
 ├── borrower.py         # Borrower
 ├── inventory.py        # Library: add_book(), search_books(), ...
 ├── storage.py          # JSON load/save (atomic writes)
+├── health.py           # health check + GET /health endpoint
+├── logging_config.py   # console + rotating file logging
 ├── exceptions.py       # domain errors
 └── utils.py            # id generation, validation helpers
 data/library.json       # persisted inventory

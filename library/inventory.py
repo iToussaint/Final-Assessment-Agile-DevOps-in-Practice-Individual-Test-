@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import logging
+
 from library.author import Author
 from library.book import Book
 from library.borrower import Borrower
@@ -9,6 +11,8 @@ from library.exceptions import DuplicateError, NotFoundError
 from library.utils import generate_id, normalise_isbn
 
 SEARCH_FIELDS = ("all", "title", "author")
+
+logger = logging.getLogger(__name__)
 
 
 class Library:
@@ -72,6 +76,9 @@ class Library:
         )
         self.authors.update({author.id: author for author in new_authors})
         self.books[book.id] = book
+        for author in new_authors:
+            logger.info("Registered author %s (%s)", author.id, author.name)
+        logger.info("Added book %s %r (ISBN %s)", book.id, book.title, book.isbn)
         return book
 
     def get_book(self, book_id: str) -> Book:
@@ -87,6 +94,7 @@ class Library:
         needle = term.strip().casefold()
         if not needle:
             return []
+        logger.debug("Searching %s for %r", field, needle)
 
         def matches_title(book: Book) -> bool:
             return needle in book.title.casefold()

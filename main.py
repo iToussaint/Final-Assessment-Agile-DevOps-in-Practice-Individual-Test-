@@ -6,19 +6,27 @@ Examples::
         --isbn 9780385474542 --genre Novel --year 1958
     python main.py search achebe --field author
     python main.py list
+    python main.py health
+    python main.py serve-health --port 8080
 """
 
 from __future__ import annotations
 
 import argparse
+import json
+import logging
 import sys
 from collections.abc import Sequence
 from pathlib import Path
 
 from library import __version__
 from library.exceptions import LibraryError
+from library.health import OK, check_health, create_health_server
 from library.inventory import SEARCH_FIELDS, Library
+from library.logging_config import configure_logging, default_log_file, verbosity_to_level
 from library.storage import default_data_file, load_library, save_library
+
+logger = logging.getLogger("library.cli")
 
 
 def print_books(books: Sequence, empty_message: str = "No books found.") -> None:
@@ -48,6 +56,29 @@ def cmd_list(library: Library, args: argparse.Namespace) -> bool:
     return False
 
 
+# --- monitoring commands: run without loading the library, return an exit code -------------
+
+
+def cmd_health(data_file: Path, args: argparse.Namespace) -> int:
+    report = check_health(data_file)
+    print(json.dumps(report, indent=2))
+    return 0 if report["status"] == OK else 1
+
+
+def cmd_serve_health(data_file: Path, args: argparse.Namespace) -> int:
+    server = create_health_server(data_file, host=args.host, port=args.port)
+    host, port = server.server_address[:2]
+    logger.info("Health endpoint listening on http://%s:%s/health", host, port)
+    print(f"Serving health checks on http://{host}:{port}/health (Ctrl+C to stop)")
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        logger.info("Health endpoint stopped")
+    finally:
+        server.server_close()
+    return 0
+
+
 # --- argument parsing -------------------------------------------------------------------
 
 
@@ -59,6 +90,19 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=None,
         help="path to the JSON data file (default: data/library.json or $LIBRARY_DATA_FILE)",
+    )
+    parser.add_argument(
+        "--log-file",
+        type=Path,
+        default=None,
+        help="path to the log file (default: logs/library.log or $LIBRARY_LOG_FILE)",
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="count",
+        default=0,
+        help="also print logs to the console (-v = INFO, -vv = DEBUG)",
     )
     sub = parser.add_subparsers(dest="command", required=True, metavar="COMMAND")
 
@@ -78,19 +122,41 @@ def build_parser() -> argparse.ArgumentParser:
     listing = sub.add_parser("list", help="list every book")
     listing.set_defaults(handler=cmd_list)
 
+    health = sub.add_parser("health", help="check the data store and print a JSON status")
+    health.set_defaults(monitor=cmd_health)
+
+    serve = sub.add_parser("serve-health", help="expose GET /health over HTTP")
+    serve.add_argument("--host", default="127.0.0.1")
+    serve.add_argument("--port", type=int, default=8080)
+    serve.set_defaults(monitor=cmd_serve_health)
+
     return parser
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    log_file = args.log_file or default_log_file()
+    console_level = verbosity_to_level(args.verbose)
+    if args.command == "serve-health" and console_level is None:
+        console_level = logging.INFO  # a long-running server should show its access log
+    configure_logging(console_level=console_level, log_file=log_file)
     data_file = args.data or default_data_file()
+    logger.debug("Running %r with data file %s", args.command, data_file)
     try:
+        if hasattr(args, "monitor"):
+            return args.monitor(data_file, args)
         library = load_library(data_file)
         if args.handler(library, args):
             save_library(library, data_file)
     except (LibraryError, ValueError) as exc:
+        logger.warning("Command %r rejected: %s", args.command, exc)
         print(f"Error: {exc}", file=sys.stderr)
         return 1
+    except Exception as exc:  # error tracking: keep the traceback, show a friendly message
+        logger.exception("Unexpected error while running %r", args.command)
+        where = f" Details were logged to {log_file}." if log_file else ""
+        print(f"Unexpected error ({type(exc).__name__}).{where}", file=sys.stderr)
+        return 2
     return 0
 
 
