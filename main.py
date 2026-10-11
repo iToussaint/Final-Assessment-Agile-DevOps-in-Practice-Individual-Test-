@@ -4,6 +4,7 @@ Examples::
 
     python main.py add-book --title "Things Fall Apart" --author "Chinua Achebe" \
         --isbn 9780385474542 --genre Novel --year 1958
+    python main.py add-book --type ebook --format EPUB --size-mb 2.4 --title ... (same options)
     python main.py search achebe --field author
     python main.py list
     python main.py add-borrower --name "Ama Mensah" --email ama@example.com
@@ -46,8 +47,23 @@ def print_books(books: Sequence, empty_message: str = "No books found.") -> None
 # --- command handlers: each returns True when the library was modified --------------------
 
 
+# extra CLI options required by each kind of book: option name -> add_book() keyword
+KIND_OPTIONS = {
+    "book": {},
+    "ebook": {"format": "file_format", "size_mb": "size_mb"},
+    "audiobook": {"narrator": "narrator", "duration": "duration_minutes"},
+}
+
+
 def cmd_add_book(library: Library, args: argparse.Namespace) -> bool:
-    book = library.add_book(args.title, args.author, args.isbn, args.genre, args.year)
+    options = KIND_OPTIONS[args.type]
+    missing = [f"--{name.replace('_', '-')}" for name in options if getattr(args, name) is None]
+    if missing:
+        raise ValueError(f"{args.type} needs {' and '.join(missing)}")
+    details = {keyword: getattr(args, name) for name, keyword in options.items()}
+    book = library.add_book(
+        args.title, args.author, args.isbn, args.genre, args.year, kind=args.type, **details
+    )
     print(f"Added {book.describe()}")
     return True
 
@@ -171,6 +187,11 @@ def build_parser() -> argparse.ArgumentParser:
     add.add_argument("--isbn", required=True)
     add.add_argument("--genre", required=True)
     add.add_argument("--year", type=int, required=True)
+    add.add_argument("--type", choices=KIND_OPTIONS, default="book", help="kind of item")
+    add.add_argument("--format", help="e-book file format (PDF, EPUB, MOBI)")
+    add.add_argument("--size-mb", type=float, help="e-book file size in MB")
+    add.add_argument("--narrator", help="audiobook narrator")
+    add.add_argument("--duration", type=int, help="audiobook duration in minutes")
     add.set_defaults(handler=cmd_add_book)
 
     search = sub.add_parser("search", help="search books by title and/or author")
