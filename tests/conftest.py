@@ -1,8 +1,22 @@
 """Shared pytest fixtures."""
 
+import logging
+
 import pytest
 
 from library.inventory import Library
+
+
+@pytest.fixture(autouse=True)
+def isolated_log_file(tmp_path, monkeypatch):
+    """Send every test's logs to a temporary file instead of the project's logs/ folder."""
+    log_file = tmp_path / "logs" / "library.log"
+    monkeypatch.setenv("LIBRARY_LOG_FILE", str(log_file))
+    yield log_file
+    logger = logging.getLogger("library")
+    for handler in list(logger.handlers):
+        logger.removeHandler(handler)
+        handler.close()
 
 
 @pytest.fixture
