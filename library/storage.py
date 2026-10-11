@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from library.author import Author
-from library.book import Book
+from library.book import book_from_dict
 from library.borrower import Borrower
 from library.exceptions import StorageError
 from library.inventory import Library
@@ -40,7 +40,7 @@ def library_from_dict(data: dict[str, Any]) -> Library:
     library = Library()
     library.authors = {item["id"]: Author.from_dict(item) for item in data.get("authors", [])}
     library.books = {
-        item["id"]: Book.from_dict(item, library.authors) for item in data.get("books", [])
+        item["id"]: book_from_dict(item, library.authors) for item in data.get("books", [])
     }
     library.borrowers = {item["id"]: Borrower.from_dict(item) for item in data.get("borrowers", [])}
     library.history = [LoanRecord.from_dict(item) for item in data.get("history", [])]

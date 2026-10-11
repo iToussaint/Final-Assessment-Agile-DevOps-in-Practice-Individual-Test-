@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 
 from library.author import Author
-from library.book import Book
+from library.book import BOOK_TYPES, Book
 from library.borrower import Borrower
 from library.exceptions import DuplicateError, LoanError, NotFoundError
 from library.loan import LoanRecord
@@ -61,26 +61,36 @@ class Library:
         isbn: str,
         genre: str,
         year: int,
+        kind: str = "book",
+        **details: object,
     ) -> Book:
-        """Validate and catalogue a new book, returning it."""
+        """Validate and catalogue a new book, returning it.
+
+        ``kind`` selects the class (``book``, ``ebook``, ``audiobook``); ``details`` are the
+        subclass-specific fields: ``file_format``/``size_mb`` for e-books,
+        ``narrator``/``duration_minutes`` for audiobooks.
+        """
+        if kind not in BOOK_TYPES:
+            raise ValueError(f"kind must be one of {', '.join(BOOK_TYPES)}")
         clean_isbn = normalise_isbn(isbn)
         if any(book.isbn == clean_isbn for book in self.books.values()):
             raise DuplicateError(f"A book with ISBN {clean_isbn} is already catalogued")
 
         authors, new_authors = self._resolve_authors(author_names)
-        book = Book(
+        book = BOOK_TYPES[kind](
             book_id=generate_id("B", self.books),
             title=title,
             authors=authors,
             isbn=clean_isbn,
             genre=genre,
             year=year,
+            **details,
         )
         self.authors.update({author.id: author for author in new_authors})
         self.books[book.id] = book
         for author in new_authors:
             logger.info("Registered author %s (%s)", author.id, author.name)
-        logger.info("Added book %s %r (ISBN %s)", book.id, book.title, book.isbn)
+        logger.info("Added %s %s %r (ISBN %s)", kind, book.id, book.title, book.isbn)
         return book
 
     def get_book(self, book_id: str) -> Book:
