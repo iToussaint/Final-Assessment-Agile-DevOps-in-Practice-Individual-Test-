@@ -1,0 +1,160 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.8, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\User\Documents\AmaliTech\Technical Foundations\Final-Assessment-Agile-DevOps-in-Practice-Individual-Test\.venv\Scripts\python.exe
+rootdir: <project>
+configfile: pyproject.toml
+testpaths: tests
+plugins: cov-7.1.0
+collecting ... collected 128 items
+
+tests/test_book_types.py::test_subclasses_extend_book_and_call_super[EBook] PASSED [  0%]
+tests/test_book_types.py::test_subclasses_extend_book_and_call_super[AudioBook] PASSED [  1%]
+tests/test_book_types.py::test_subclass_reuses_parent_validation PASSED  [  2%]
+tests/test_book_types.py::test_ebook_fields_are_normalised PASSED        [  3%]
+tests/test_book_types.py::test_ebook_rejects_invalid_fields[overrides0] PASSED [  3%]
+tests/test_book_types.py::test_ebook_rejects_invalid_fields[overrides1] PASSED [  4%]
+tests/test_book_types.py::test_ebook_rejects_invalid_fields[overrides2] PASSED [  5%]
+tests/test_book_types.py::test_ebook_rejects_invalid_fields[overrides3] PASSED [  6%]
+tests/test_book_types.py::test_audiobook_rejects_invalid_fields[overrides0] PASSED [  7%]
+tests/test_book_types.py::test_audiobook_rejects_invalid_fields[overrides1] PASSED [  7%]
+tests/test_book_types.py::test_audiobook_rejects_invalid_fields[overrides2] PASSED [  8%]
+tests/test_book_types.py::test_repr_and_describe_extend_parent_output PASSED [  9%]
+tests/test_book_types.py::test_same_isbn_but_different_kind_is_not_equal PASSED [ 10%]
+tests/test_book_types.py::test_round_trip_restores_the_correct_subclass[make_ebook] PASSED [ 10%]
+tests/test_book_types.py::test_round_trip_restores_the_correct_subclass[make_audiobook] PASSED [ 11%]
+tests/test_book_types.py::test_unknown_type_is_rejected PASSED           [ 12%]
+tests/test_book_types.py::test_book_types_registry PASSED                [ 13%]
+tests/test_book_types.py::test_library_add_book_with_kind PASSED         [ 14%]
+tests/test_book_types.py::test_mixed_library_search_borrow_report_and_persist PASSED [ 14%]
+tests/test_book_types.py::test_cli_adds_ebook_and_audiobook PASSED       [ 15%]
+tests/test_book_types.py::test_cli_requires_kind_specific_options PASSED [ 16%]
+tests/test_borrowing.py::test_add_borrower_assigns_member_id PASSED      [ 17%]
+tests/test_borrowing.py::test_duplicate_email_is_rejected PASSED         [ 17%]
+tests/test_borrowing.py::test_list_borrowers_sorted_by_name PASSED       [ 18%]
+tests/test_borrowing.py::test_borrow_updates_book_borrower_and_history PASSED [ 19%]
+tests/test_borrowing.py::test_cannot_borrow_a_book_already_on_loan PASSED [ 20%]
+tests/test_borrowing.py::test_loan_limit_is_enforced_without_side_effects PASSED [ 21%]
+tests/test_borrowing.py::test_unknown_ids_raise_not_found[B999-M001] PASSED [ 21%]
+tests/test_borrowing.py::test_unknown_ids_raise_not_found[B001-M999] PASSED [ 22%]
+tests/test_borrowing.py::test_model_level_guards PASSED                  [ 23%]
+tests/test_borrowing.py::test_loans_and_history_survive_save_and_load PASSED [ 24%]
+tests/test_borrowing.py::test_cli_register_and_borrow PASSED             [ 25%]
+tests/test_borrowing.py::test_cli_borrowers_when_none PASSED             [ 25%]
+tests/test_cli.py::test_add_book_persists_to_data_file PASSED            [ 26%]
+tests/test_cli.py::test_data_survives_between_runs_and_list_shows_it PASSED [ 27%]
+tests/test_cli.py::test_search_by_author PASSED                          [ 28%]
+tests/test_cli.py::test_search_without_results PASSED                    [ 28%]
+tests/test_cli.py::test_list_on_empty_library PASSED                     [ 29%]
+tests/test_cli.py::test_duplicate_isbn_returns_error_code PASSED         [ 30%]
+tests/test_cli.py::test_corrupted_data_file_reports_friendly_error PASSED [ 31%]
+tests/test_health.py::test_healthy_data_file_reports_ok_with_counts PASSED [ 32%]
+tests/test_health.py::test_missing_data_file_is_healthy PASSED           [ 32%]
+tests/test_health.py::test_corrupt_data_file_reports_error PASSED        [ 33%]
+tests/test_health.py::test_health_command_prints_json_and_exit_code PASSED [ 34%]
+tests/test_health.py::test_health_check_is_logged PASSED                 [ 35%]
+tests/test_health.py::test_http_health_returns_200_when_healthy PASSED   [ 35%]
+tests/test_health.py::test_http_health_returns_503_when_unhealthy PASSED [ 36%]
+tests/test_health.py::test_http_unknown_path_returns_404 PASSED          [ 37%]
+tests/test_health.py::test_serve_health_command_starts_and_stops_cleanly PASSED [ 38%]
+tests/test_inventory.py::test_add_book_assigns_id_and_is_available PASSED [ 39%]
+tests/test_inventory.py::test_add_book_reuses_existing_author PASSED     [ 39%]
+tests/test_inventory.py::test_add_book_author_match_is_case_insensitive PASSED [ 40%]
+tests/test_inventory.py::test_add_book_rejects_duplicate_isbn PASSED     [ 41%]
+tests/test_inventory.py::test_invalid_book_is_not_stored_and_creates_no_author PASSED [ 42%]
+tests/test_inventory.py::test_get_book_unknown_id_raises_not_found PASSED [ 42%]
+tests/test_inventory.py::test_list_books_is_sorted_by_title PASSED       [ 43%]
+tests/test_logging.py::test_configure_logging_writes_formatted_records_to_file PASSED [ 44%]
+tests/test_logging.py::test_configure_logging_is_idempotent PASSED       [ 45%]
+tests/test_logging.py::test_verbosity_to_level[0-None] PASSED            [ 46%]
+tests/test_logging.py::test_verbosity_to_level[1-20] PASSED              [ 46%]
+tests/test_logging.py::test_verbosity_to_level[2-10] PASSED              [ 47%]
+tests/test_logging.py::test_verbosity_to_level[5-10] PASSED              [ 48%]
+tests/test_logging.py::test_default_log_file_env_override PASSED         [ 49%]
+tests/test_logging.py::test_concise_formatter_hides_traceback PASSED     [ 50%]
+tests/test_logging.py::test_state_changes_are_logged_to_file PASSED      [ 50%]
+tests/test_logging.py::test_console_is_quiet_by_default_and_verbose_with_v PASSED [ 51%]
+tests/test_logging.py::test_rejected_command_is_logged_as_warning PASSED [ 52%]
+tests/test_logging.py::test_unexpected_error_is_tracked_with_traceback PASSED [ 53%]
+tests/test_models.py::test_library_resource_is_abstract PASSED           [ 53%]
+tests/test_models.py::test_entities_inherit_from_library_resource[Book] PASSED [ 54%]
+tests/test_models.py::test_entities_inherit_from_library_resource[Author] PASSED [ 55%]
+tests/test_models.py::test_entities_inherit_from_library_resource[Borrower] PASSED [ 56%]
+tests/test_models.py::test_resource_id_must_not_be_blank PASSED          [ 57%]
+tests/test_models.py::test_author_repr_and_whitespace_normalisation PASSED [ 57%]
+tests/test_models.py::test_authors_with_same_name_are_equal_case_insensitive PASSED [ 58%]
+tests/test_models.py::test_author_name_cannot_be_empty PASSED            [ 59%]
+tests/test_models.py::test_book_properties_are_normalised PASSED         [ 60%]
+tests/test_models.py::test_book_attributes_are_private PASSED            [ 60%]
+tests/test_models.py::test_book_setter_validates PASSED                  [ 61%]
+tests/test_models.py::test_authors_getter_returns_a_copy PASSED          [ 62%]
+tests/test_models.py::test_book_rejects_invalid_year[1200] PASSED        [ 63%]
+tests/test_models.py::test_book_rejects_invalid_year[2027] PASSED        [ 64%]
+tests/test_models.py::test_book_rejects_invalid_year[nineteen] PASSED    [ 64%]
+tests/test_models.py::test_book_requires_an_author PASSED                [ 65%]
+tests/test_models.py::test_book_rejects_invalid_isbn PASSED              [ 66%]
+tests/test_models.py::test_book_repr_is_readable PASSED                  [ 67%]
+tests/test_models.py::test_books_with_same_isbn_are_equal PASSED         [ 67%]
+tests/test_models.py::test_book_round_trips_through_dict PASSED          [ 68%]
+tests/test_models.py::test_borrower_email_is_validated_and_lower_cased PASSED [ 69%]
+tests/test_models.py::test_borrower_round_trips_through_dict PASSED      [ 70%]
+tests/test_models.py::test_generate_id_uses_next_number_for_prefix PASSED [ 71%]
+tests/test_models.py::test_normalise_isbn_accepts_isbn10_with_x PASSED   [ 71%]
+tests/test_reports.py::test_available_books_excludes_loans PASSED        [ 72%]
+tests/test_reports.py::test_borrowed_books_are_paired_with_their_borrower PASSED [ 73%]
+tests/test_reports.py::test_books_by_author_groups_titles_including_co_authors PASSED [ 74%]
+tests/test_reports.py::test_books_by_genre_and_type PASSED               [ 75%]
+tests/test_reports.py::test_summary_totals PASSED                        [ 75%]
+tests/test_reports.py::test_reports_on_empty_library PASSED              [ 76%]
+tests/test_reports.py::test_render_report_rejects_unknown_name PASSED    [ 77%]
+tests/test_reports.py::test_cli_report_commands[available-Available books (2)] PASSED [ 78%]
+tests/test_reports.py::test_cli_report_commands[borrowed-[B001] Things Fall Apart -> Ama Mensah (M001)] PASSED [ 78%]
+tests/test_reports.py::test_cli_report_commands[by-author-  - Things Fall Apart] PASSED [ 79%]
+tests/test_reports.py::test_cli_report_commands[by-genre-Novel: 2] PASSED [ 80%]
+tests/test_reports.py::test_cli_report_commands[summary-Active loans: 2] PASSED [ 81%]
+tests/test_reports.py::test_report_generation_is_logged PASSED           [ 82%]
+tests/test_returns.py::test_return_makes_book_available_and_frees_borrower_slot PASSED [ 82%]
+tests/test_returns.py::test_returned_book_can_be_borrowed_again PASSED   [ 83%]
+tests/test_returns.py::test_returning_a_book_not_on_loan_is_rejected PASSED [ 84%]
+tests/test_returns.py::test_return_unknown_book_raises_not_found PASSED  [ 85%]
+tests/test_returns.py::test_history_can_be_filtered_by_borrower PASSED   [ 85%]
+tests/test_returns.py::test_history_with_return_dates_is_persisted PASSED [ 86%]
+tests/test_returns.py::test_cli_return_and_history PASSED                [ 87%]
+tests/test_returns.py::test_cli_history_when_empty PASSED                [ 88%]
+tests/test_search.py::test_search_by_title_is_partial_and_case_insensitive PASSED [ 89%]
+tests/test_search.py::test_search_by_author_matches_any_co_author PASSED [ 89%]
+tests/test_search.py::test_search_all_fields_by_default PASSED           [ 90%]
+tests/test_search.py::test_search_title_only_ignores_author_names PASSED [ 91%]
+tests/test_search.py::test_search_without_match_returns_empty_list PASSED [ 92%]
+tests/test_search.py::test_blank_search_term_returns_nothing PASSED      [ 92%]
+tests/test_search.py::test_unknown_search_field_is_rejected PASSED       [ 93%]
+tests/test_smoke.py::test_package_has_version PASSED                     [ 94%]
+tests/test_storage.py::test_save_writes_all_books_and_authors PASSED     [ 95%]
+tests/test_storage.py::test_round_trip_restores_equal_objects PASSED     [ 96%]
+tests/test_storage.py::test_restored_books_share_author_objects PASSED   [ 96%]
+tests/test_storage.py::test_missing_file_gives_empty_library_and_save_creates_it PASSED [ 97%]
+tests/test_storage.py::test_corrupted_json_raises_storage_error PASSED   [ 98%]
+tests/test_storage.py::test_invalid_records_raise_storage_error PASSED   [ 99%]
+tests/test_storage.py::test_save_is_atomic_and_leaves_no_temp_file PASSED [100%]
+
+=============================== tests coverage ================================
+_______________ coverage: platform win32, python 3.14.8-final-0 _______________
+
+Name                        Stmts   Miss  Cover   Missing
+---------------------------------------------------------
+library\__init__.py             1      0   100%
+library\author.py              29      2    93%   27, 42
+library\book.py               181      3    98%   59, 161, 165
+library\borrower.py            60      5    92%   61, 63, 92, 97, 101
+library\exceptions.py           5      0   100%
+library\health.py              60      2    97%   29, 63
+library\inventory.py          117      0   100%
+library\loan.py                17      0   100%
+library\logging_config.py      48      2    96%   78-79
+library\reports.py             45      0   100%
+library\resource.py            23      5    78%   35, 38-40, 43
+library\storage.py             60      7    88%   26, 61-64, 81-82
+library\utils.py               22      0   100%
+main.py                       167      1    99%   269
+---------------------------------------------------------
+TOTAL                         835     27    97%
+Required test coverage of 90% reached. Total coverage: 96.77%
+============================= 128 passed in 2.69s =============================
