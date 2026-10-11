@@ -37,9 +37,7 @@ def library_from_dict(data: dict[str, Any]) -> Library:
     library.books = {
         item["id"]: Book.from_dict(item, library.authors) for item in data.get("books", [])
     }
-    library.borrowers = {
-        item["id"]: Borrower.from_dict(item) for item in data.get("borrowers", [])
-    }
+    library.borrowers = {item["id"]: Borrower.from_dict(item) for item in data.get("borrowers", [])}
     return library
 
 
