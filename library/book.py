@@ -163,3 +163,156 @@ class Book(LibraryResource):
 
     def __hash__(self) -> int:
         return hash((type(self).__name__, self.isbn))
+
+
+class EBook(Book):
+    """A digital book distributed as a file."""
+
+    resource_type = "ebook"
+    FORMATS = ("PDF", "EPUB", "MOBI")
+
+    def __init__(
+        self,
+        book_id: str,
+        title: str,
+        authors: list[Author],
+        isbn: str,
+        genre: str,
+        year: int,
+        file_format: str,
+        size_mb: float,
+        available: bool = True,
+    ) -> None:
+        super().__init__(book_id, title, authors, isbn, genre, year, available)
+        self.file_format = file_format
+        self.size_mb = size_mb
+
+    @property
+    def file_format(self) -> str:
+        return self.__file_format
+
+    @file_format.setter
+    def file_format(self, value: str) -> None:
+        file_format = require_text(value, "File format").upper()
+        if file_format not in self.FORMATS:
+            raise ValueError(f"File format must be one of {', '.join(self.FORMATS)}")
+        self.__file_format = file_format
+
+    @property
+    def size_mb(self) -> float:
+        return self.__size_mb
+
+    @size_mb.setter
+    def size_mb(self, value: float) -> None:
+        try:
+            size = round(float(value), 2)
+        except (TypeError, ValueError):
+            raise ValueError(f"Size must be a number of MB, got {value!r}") from None
+        if size <= 0:
+            raise ValueError("Size must be greater than 0 MB")
+        self.__size_mb = size
+
+    def describe(self) -> str:
+        return f"{super().describe()} | e-book {self.file_format}, {self.size_mb} MB"
+
+    def to_dict(self) -> dict[str, Any]:
+        data = super().to_dict()
+        data.update(file_format=self.file_format, size_mb=self.size_mb)
+        return data
+
+    @classmethod
+    def _kwargs_from_dict(
+        cls, data: dict[str, Any], authors_by_id: dict[str, Author]
+    ) -> dict[str, Any]:
+        kwargs = super()._kwargs_from_dict(data, authors_by_id)
+        kwargs.update(file_format=data["file_format"], size_mb=data["size_mb"])
+        return kwargs
+
+    def __repr__(self) -> str:
+        return (
+            f"{super().__repr__()[:-1]}, file_format={self.file_format!r}, size_mb={self.size_mb})"
+        )
+
+
+class AudioBook(Book):
+    """A narrated recording of a book."""
+
+    resource_type = "audiobook"
+
+    def __init__(
+        self,
+        book_id: str,
+        title: str,
+        authors: list[Author],
+        isbn: str,
+        genre: str,
+        year: int,
+        narrator: str,
+        duration_minutes: int,
+        available: bool = True,
+    ) -> None:
+        super().__init__(book_id, title, authors, isbn, genre, year, available)
+        self.narrator = narrator
+        self.duration_minutes = duration_minutes
+
+    @property
+    def narrator(self) -> str:
+        return self.__narrator
+
+    @narrator.setter
+    def narrator(self, value: str) -> None:
+        self.__narrator = " ".join(require_text(value, "Narrator").split())
+
+    @property
+    def duration_minutes(self) -> int:
+        return self.__duration_minutes
+
+    @duration_minutes.setter
+    def duration_minutes(self, value: int) -> None:
+        try:
+            minutes = int(value)
+        except (TypeError, ValueError):
+            raise ValueError(f"Duration must be whole minutes, got {value!r}") from None
+        if minutes <= 0:
+            raise ValueError("Duration must be greater than 0 minutes")
+        self.__duration_minutes = minutes
+
+    @property
+    def duration_label(self) -> str:
+        hours, minutes = divmod(self.duration_minutes, 60)
+        return f"{hours}h {minutes:02d}m"
+
+    def describe(self) -> str:
+        return f"{super().describe()} | audiobook read by {self.narrator}, {self.duration_label}"
+
+    def to_dict(self) -> dict[str, Any]:
+        data = super().to_dict()
+        data.update(narrator=self.narrator, duration_minutes=self.duration_minutes)
+        return data
+
+    @classmethod
+    def _kwargs_from_dict(
+        cls, data: dict[str, Any], authors_by_id: dict[str, Author]
+    ) -> dict[str, Any]:
+        kwargs = super()._kwargs_from_dict(data, authors_by_id)
+        kwargs.update(narrator=data["narrator"], duration_minutes=data["duration_minutes"])
+        return kwargs
+
+    def __repr__(self) -> str:
+        return (
+            f"{super().__repr__()[:-1]}, narrator={self.narrator!r}, "
+            f"duration_minutes={self.duration_minutes})"
+        )
+
+
+BOOK_TYPES: dict[str, type[Book]] = {cls.resource_type: cls for cls in (Book, EBook, AudioBook)}
+
+
+def book_from_dict(data: dict[str, Any], authors_by_id: dict[str, Author]) -> Book:
+    """Rebuild a Book, EBook or AudioBook from its ``to_dict()`` output."""
+    kind = data.get("type", Book.resource_type)
+    try:
+        cls = BOOK_TYPES[kind]
+    except KeyError:
+        raise ValueError(f"Unknown book type {kind!r}") from None
+    return cls.from_dict(data, authors_by_id)
