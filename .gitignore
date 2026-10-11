@@ -22,3 +22,7 @@ test-reports/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Application logs
+logs/
+*.log
