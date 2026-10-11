@@ -1,3 +1,4 @@
 # The application itself only uses the Python standard library.
 # These are development / CI dependencies.
 pytest>=8.0
+ruff>=0.6
