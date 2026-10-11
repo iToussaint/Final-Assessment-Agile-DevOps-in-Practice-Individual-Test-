@@ -34,30 +34,40 @@ def default_log_file() -> Path | None:
     return Path(value) if value.strip() else None
 
 
-def verbosity_to_level(verbosity: int) -> int:
-    """Map ``-v`` flags to a console level: none=WARNING, -v=INFO, -vv=DEBUG."""
-    return {0: logging.WARNING, 1: logging.INFO}.get(verbosity, logging.DEBUG)
+def verbosity_to_level(verbosity: int) -> int | None:
+    """Map ``-v`` flags to a console level: none=no console logs, -v=INFO, -vv=DEBUG.
+
+    Without ``-v`` the user only sees friendly messages; everything is still logged to file.
+    """
+    if verbosity <= 0:
+        return None
+    return logging.INFO if verbosity == 1 else logging.DEBUG
 
 
 def configure_logging(
-    console_level: int = logging.WARNING,
+    console_level: int | None = None,
     log_file: Path | None = None,
     file_level: int = logging.INFO,
 ) -> logging.Logger:
     """(Re)configure the ``library`` logger and return it.
 
-    Safe to call more than once: existing handlers are replaced, not duplicated.
+    ``console_level=None`` disables console output. Safe to call more than once:
+    existing handlers are replaced, not duplicated.
     """
     logger = logging.getLogger(LOGGER_NAME)
     logger.setLevel(logging.DEBUG)
     for handler in list(logger.handlers):
         logger.removeHandler(handler)
         handler.close()
+    # NullHandler stops Python's "last resort" handler printing to stderr when
+    # both console and file logging are disabled.
+    logger.addHandler(logging.NullHandler())
 
-    console = logging.StreamHandler()
-    console.setLevel(console_level)
-    console.setFormatter(ConciseFormatter(LOG_FORMAT))
-    logger.addHandler(console)
+    if console_level is not None:
+        console = logging.StreamHandler()
+        console.setLevel(console_level)
+        console.setFormatter(ConciseFormatter(LOG_FORMAT))
+        logger.addHandler(console)
 
     if log_file is not None:
         try:
