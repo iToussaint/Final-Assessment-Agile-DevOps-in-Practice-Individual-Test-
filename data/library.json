@@ -116,7 +116,55 @@
       "genre": "Software",
       "year": 1999,
       "available": true
+    },
+    {
+      "id": "B008",
+      "type": "ebook",
+      "title": "Americanah",
+      "author_ids": [
+        "A002"
+      ],
+      "isbn": "9780307455925",
+      "genre": "Novel",
+      "year": 2013,
+      "available": true,
+      "file_format": "EPUB",
+      "size_mb": 2.4
+    },
+    {
+      "id": "B009",
+      "type": "audiobook",
+      "title": "No Longer at Ease",
+      "author_ids": [
+        "A001"
+      ],
+      "isbn": "9780385474559",
+      "genre": "Novel",
+      "year": 1960,
+      "available": true,
+      "narrator": "Peter Francis James",
+      "duration_minutes": 390
     }
   ],
-  "borrowers": []
+  "borrowers": [
+    {
+      "id": "M001",
+      "name": "Ama Mensah",
+      "email": "ama.mensah@example.com",
+      "borrowed_book_ids": []
+    },
+    {
+      "id": "M002",
+      "name": "Kofi Boateng",
+      "email": "kofi.boateng@example.com",
+      "borrowed_book_ids": []
+    },
+    {
+      "id": "M003",
+      "name": "Aline Uwase",
+      "email": "aline.uwase@example.com",
+      "borrowed_book_ids": []
+    }
+  ],
+  "history": []
 }
