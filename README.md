@@ -87,41 +87,6 @@ lint ──▶ tests (Python 3.10 · 3.12 · 3.13, coverage ≥ 90 %) ──▶ 
 | **CLI smoke test & health endpoint** | adds/lists/searches a book through the real CLI, runs `health`, starts `serve-health` and probes `GET /health` |
 | **Package release artifact** | on `main` and `v*` tags: builds `library-inventory-<version>.zip`, verifies it runs from a clean folder, uploads it |
 
-## Design
-
-| Concept | Where |
-|---|---|
-| Abstract base class | `LibraryResource` (`library/resource.py`) — abstract `describe()` / `to_dict()` |
-| Classes | `Book`, `Author`, `Borrower` extend `LibraryResource` |
-| Inheritance + `super()` | `EBook`, `AudioBook` extend `Book` (`__init__`, `describe`, `to_dict`, `_kwargs_from_dict`, `__repr__`) |
-| Encapsulation | private (name-mangled) attributes exposed through validating properties |
-| `__repr__` / `__eq__` | every entity; books compare by kind + ISBN, authors by name, borrowers by e-mail |
-| Lists & dicts | `Library` keeps `dict[id → object]`; history is a `list[LoanRecord]` |
-| Comprehensions | searching (`search_books`), filtering (`active_loans`, `available_books`) and reports (`books_by_author`, `books_by_genre`, …) |
-| File I/O | `library/storage.py` — JSON, atomic write via temp file + `os.replace` |
-
-## Project structure
-
-```
-main.py                 # CLI entry point (argparse)
-library/
-├── resource.py         # LibraryResource abstract base class
-├── author.py           # Author
-├── book.py             # Book, EBook, AudioBook
-├── borrower.py         # Borrower (max 3 loans)
-├── loan.py             # LoanRecord (borrowing history entry)
-├── inventory.py        # Library: add_book(), search_books(), borrow_book(), return_book()
-├── reports.py          # reports built with comprehensions
-├── storage.py          # JSON load/save (atomic writes)
-├── health.py           # health check + GET /health endpoint
-├── logging_config.py   # console + rotating file logging
-├── exceptions.py       # domain errors
-└── utils.py            # id generation, validation helpers
-data/library.json       # persisted inventory (sample data)
-tests/                  # pytest unit + integration tests
-docs/                   # backlog, sprint plans, reviews, retrospectives, evidence
-```
-
 ## Project documentation
 
 | Phase | Documents |
