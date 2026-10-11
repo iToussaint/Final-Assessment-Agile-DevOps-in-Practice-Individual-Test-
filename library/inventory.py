@@ -156,6 +156,31 @@ class Library:
         logger.info("Book %s lent to borrower %s", book.id, borrower.id)
         return record
 
+    def return_book(self, book_id: str) -> LoanRecord:
+        """Receive a borrowed book back and close its loan record."""
+        book = self.get_book(book_id)
+        open_records = [r for r in self.active_loans() if r.book_id == book.id]
+        if book.is_available or not open_records:
+            raise LoanError(f"{book.title!r} ({book.id}) is not on loan")
+        record = open_records[0]
+        borrower = self.get_borrower(record.borrower_id)
+
+        borrower.remove_loan(book.id)
+        book.mark_returned()
+        record.returned_at = now_iso()
+        logger.info("Book %s returned by borrower %s", book.id, borrower.id)
+        return record
+
+    def get_history(self, borrower_id: str | None = None) -> list[LoanRecord]:
+        """Borrowing history, oldest first, optionally for one borrower."""
+        if borrower_id is not None:
+            self.get_borrower(borrower_id)  # raises NotFoundError for unknown ids
+        return [
+            record
+            for record in self.history
+            if borrower_id is None or record.borrower_id == borrower_id
+        ]
+
     def active_loans(self) -> list[LoanRecord]:
         return [record for record in self.history if record.is_active]
 
