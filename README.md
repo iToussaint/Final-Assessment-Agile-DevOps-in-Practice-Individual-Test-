@@ -89,6 +89,11 @@ lint ──▶ tests (Python 3.10 · 3.12 · 3.13, coverage ≥ 90 %) ──▶ 
 
 ## Project documentation
 
+📄 **Submission document (summary of all sprints, with screenshots):**
+[Agile & DevOps Final Assessment – Process Documentation](https://docs.google.com/document/d/1Mgsi9NfcKq_sWvhKsmmRlyBeLtPOWlRSro60rupTVrg/edit?usp=sharing)
+
+Full-length documents for each phase:
+
 | Phase | Documents |
 |---|---|
 | Sprint 0 – Planning | [Product vision & backlog](docs/sprint-0/product-backlog.md) · [Acceptance criteria](docs/sprint-0/acceptance-criteria.md) · [Definition of Done](docs/sprint-0/definition-of-done.md) · [Sprint 1 plan](docs/sprint-0/sprint-1-plan.md) |
