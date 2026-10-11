@@ -13,5 +13,9 @@ class DuplicateError(LibraryError):
     """Raised when adding a record that already exists (e.g. same ISBN)."""
 
 
+class LoanError(LibraryError):
+    """Raised when a borrow/return breaks a lending rule (already on loan, limit reached...)."""
+
+
 class StorageError(LibraryError):
     """Raised when the data file cannot be read or written."""

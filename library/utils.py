@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from datetime import date
+from datetime import date, datetime
 
 
 def generate_id(prefix: str, existing_ids: Iterable[str]) -> str:
@@ -40,6 +40,11 @@ def require_text(value: object, field: str) -> str:
     if not text:
         raise ValueError(f"{field} must not be empty")
     return text
+
+
+def now_iso() -> str:
+    """Current local date-time as an ISO-8601 string with UTC offset (seconds precision)."""
+    return datetime.now().astimezone().isoformat(timespec="seconds")
 
 
 def current_year() -> int:

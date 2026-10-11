@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from library.author import Author
+from library.exceptions import LoanError
 from library.resource import LibraryResource
 from library.utils import current_year, normalise_isbn, require_text
 
@@ -95,6 +96,16 @@ class Book(LibraryResource):
     @property
     def is_available(self) -> bool:
         return self.__available
+
+    def mark_borrowed(self) -> None:
+        if not self.__available:
+            raise LoanError(f"{self.title!r} ({self.id}) is already on loan")
+        self.__available = False
+
+    def mark_returned(self) -> None:
+        if self.__available:
+            raise LoanError(f"{self.title!r} ({self.id}) is not on loan")
+        self.__available = True
 
     # --- LibraryResource interface ----------------------------------------------
 
