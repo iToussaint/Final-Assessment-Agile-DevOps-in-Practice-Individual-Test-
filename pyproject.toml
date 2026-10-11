@@ -1,6 +1,6 @@
 [project]
 name = "library-inventory"
-version = "0.1.0"
+version = "0.2.0"
 description = "Command-line Library Inventory Application (Agile & DevOps final assessment)"
 readme = "README.md"
 requires-python = ">=3.10"

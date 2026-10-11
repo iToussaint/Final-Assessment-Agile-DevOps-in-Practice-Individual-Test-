@@ -1,8 +1,9 @@
-name: CI
+name: CI/CD
 
 on:
   push:
     branches: ["**"]
+    tags: ["v*"]
   pull_request:
     branches: [main]
 
@@ -106,3 +107,42 @@ jobs:
       - name: Show application log
         if: always()
         run: cat "$LIBRARY_LOG_FILE"
+
+  package:
+    name: Package release artifact
+    needs: smoke
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Build distributable zip
+        run: |
+          set -euo pipefail
+          VERSION=$(python -c "import library; print(library.__version__)")
+          NAME="library-inventory-${VERSION}"
+          mkdir -p dist
+          git archive --format=zip --prefix="${NAME}/" -o "dist/${NAME}.zip" HEAD             main.py library data README.md pyproject.toml
+          unzip -l "dist/${NAME}.zip"
+          echo "NAME=${NAME}" >> "$GITHUB_ENV"
+
+      - name: Verify the package runs from a clean directory
+        run: |
+          set -euo pipefail
+          cd "$(mktemp -d)"
+          unzip -q "$GITHUB_WORKSPACE/dist/${NAME}.zip"
+          cd "${NAME}"
+          python main.py --version
+          python main.py health
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.NAME }}
+          path: dist/*.zip
