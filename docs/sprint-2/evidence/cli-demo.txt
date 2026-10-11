@@ -1,0 +1,115 @@
+# Sprint 2 demo - run against a copy of data/library.json
+
+$ python main.py report summary
+Library summary
+Books: 9
+Available: 9
+Borrowed: 0
+Authors: 7
+Borrowers: 3
+Active loans: 0
+Total loans: 0
+By type: audiobook: 1, book: 7, ebook: 1
+
+$ python main.py list
+[B008] Americanah by Chimamanda Ngozi Adichie (2013, Novel) ISBN 9780307455925 - available | e-book EPUB, 2.4 MB
+[B002] Arrow of God by Chinua Achebe (1964, Novel) ISBN 9780385014809 - available
+[B006] Clean Code by Robert C. Martin (2008, Software) ISBN 9780132350884 - available
+[B005] Good Omens by Terry Pratchett, Neil Gaiman (1990, Fantasy) ISBN 9780060853983 - available
+[B003] Half of a Yellow Sun by Chimamanda Ngozi Adichie (2006, Historical Fiction) ISBN 9781400095209 - available
+[B009] No Longer at Ease by Chinua Achebe (1960, Novel) ISBN 9780385474559 - available | audiobook read by Peter Francis James, 6h 30m
+[B004] Purple Hibiscus by Chimamanda Ngozi Adichie (2003, Novel) ISBN 9781616202415 - available
+[B007] The Pragmatic Programmer by Andrew Hunt, David Thomas (1999, Software) ISBN 9780201616224 - available
+[B001] Things Fall Apart by Chinua Achebe (1958, Novel) ISBN 9780385474542 - available
+
+$ python main.py borrow B001 M001
+'Things Fall Apart' (B001) lent to Ama Mensah (M001)
+
+$ python main.py borrow B008 M001
+'Americanah' (B008) lent to Ama Mensah (M001)
+
+$ python main.py borrow B009 M001
+'No Longer at Ease' (B009) lent to Ama Mensah (M001)
+
+$ python main.py borrow B002 M001
+Error: Ama Mensah has reached the loan limit
+(exit code 1)
+
+$ python main.py borrow B001 M002
+Error: 'Things Fall Apart' (B001) is already on loan by Ama Mensah
+(exit code 1)
+
+$ python main.py borrowers
+[M003] Aline Uwase <aline.uwase@example.com> - 0 on loan
+[M001] Ama Mensah <ama.mensah@example.com> - 3 on loan
+[M002] Kofi Boateng <kofi.boateng@example.com> - 0 on loan
+
+$ python main.py report borrowed
+Borrowed books (3)
+[B008] Americanah -> Ama Mensah (M001)
+[B009] No Longer at Ease -> Ama Mensah (M001)
+[B001] Things Fall Apart -> Ama Mensah (M001)
+
+$ python main.py return B001
+'Things Fall Apart' (B001) returned by Ama Mensah (M001)
+
+$ python main.py return B001
+Error: 'Things Fall Apart' (B001) is not on loan
+(exit code 1)
+
+$ python main.py report available
+Available books (7)
+[B002] Arrow of God by Chinua Achebe (1964, Novel) ISBN 9780385014809 - available
+[B006] Clean Code by Robert C. Martin (2008, Software) ISBN 9780132350884 - available
+[B005] Good Omens by Terry Pratchett, Neil Gaiman (1990, Fantasy) ISBN 9780060853983 - available
+[B003] Half of a Yellow Sun by Chimamanda Ngozi Adichie (2006, Historical Fiction) ISBN 9781400095209 - available
+[B004] Purple Hibiscus by Chimamanda Ngozi Adichie (2003, Novel) ISBN 9781616202415 - available
+[B007] The Pragmatic Programmer by Andrew Hunt, David Thomas (1999, Software) ISBN 9780201616224 - available
+[B001] Things Fall Apart by Chinua Achebe (1958, Novel) ISBN 9780385474542 - available
+
+$ python main.py report by-author
+Books by author
+Andrew Hunt (1)
+  - The Pragmatic Programmer
+Chimamanda Ngozi Adichie (3)
+  - Americanah
+  - Half of a Yellow Sun
+  - Purple Hibiscus
+Chinua Achebe (3)
+  - Arrow of God
+  - No Longer at Ease
+  - Things Fall Apart
+David Thomas (1)
+  - The Pragmatic Programmer
+Neil Gaiman (1)
+  - Good Omens
+Robert C. Martin (1)
+  - Clean Code
+Terry Pratchett (1)
+  - Good Omens
+
+$ python main.py report by-genre
+Books by genre
+Fantasy: 1
+Historical Fiction: 1
+Novel: 5
+Software: 2
+
+$ python main.py health | grep -E "^  \"status\"|\"books\"|\"borrowers\""   # exit code 0 = healthy
+  "status": "ok",
+    "books": 9,
+    "borrowers": 3
+(exit code 0)
+
+$ echo "{ broken" > broken.json && python main.py --data broken.json health | grep -E "^  \"status\""
+  "status": "error",
+(exit code 1)
+
+$ python main.py serve-health --port 8765 &
+$ curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8765/health
+200
+$ curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8765/unknown
+404
+
+$ grep -cE "Book .* (lent|returned)" logs/library.log   # loans and returns recorded in the log file
+4
